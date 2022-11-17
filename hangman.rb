@@ -1,12 +1,12 @@
 class Hangman
-    attr_accessor :secret_word
+    # attr_accessor :secret_word
     def initialize(secret_word)
       @secret_word = secret_word
       @letters = []
+      @guesses_count = 5
     end
 
     def process_word_and_start_game
-        p @secret_word
         @secret_array = @secret_word.split('')
         @hangman_hide_array = Array.new(@secret_word.length, '_')
         p @hangman_hide_string = @hangman_hide_array.join(' ')
@@ -32,10 +32,34 @@ class Hangman
         
     end
 
-   
+    def wanna_guess_question 
+        if @guesses_count == 0 
+            abort("FIM DE JOGO: TENTATIVAS EXCEDIDAS...")
+        end
+        puts "Você tem direito a #{@guesses_count} tentativas"
 
-    def display_updated_secret
+        puts "Quer adivinhar a palavra? s/n"
+        y_n = gets.chomp.downcase
+        if y_n == 's' 
+            @guesses_count -= 1
+            test_guess()
+        elsif y_n == 'n' 
+            ask_guess()
+        else  
+            puts "Foi uma pergunta de sim ou não. Bola pra frente:"
+        end  
+        ask_guess()
+    end
 
+    def test_guess
+       puts "ESCREVA A PALAVRA:"
+       @guess = gets.chomp.downcase
+       if @guess == @secret_word
+         abort("PARABÉNS VOCÊ VENCEU, NA TENTATIVA #{5 - @guesses_count}/5")
+       else  
+         puts "Ainda não foi dessa vez. Você possui mais #{@guesses_count} tentativas."
+         ask_guess()
+       end
     end
 
     def display_responses(indexes_list, char)
@@ -56,15 +80,24 @@ class Hangman
              end
           end
         end
-        
-         p @updated_secret.join(' ')
+
+        if @updated_secret.include?('_') == false
+            abort("FIM DE JOGO, VOCÊ NÃO CONSEGUIU ACERTAR. A PALAVRA É '#{@secret_word.upcase}'")
+        else    
+            p @updated_secret.join(' ')
+        end
     end
 
     def list_letters(letter)
-        @letters << letter
+
+        if @letters.include?(letter) 
+            puts "Esta letra já foi escolhida"
+        else  
+            @letters << letter
+        end
         
         p "Letras já escolhidas: #{@letters.join(', ')}"
-        ask_guess()
+        wanna_guess_question()
     end
 end
 
@@ -77,6 +110,7 @@ dictionary = File
 
 secret_word = dictionary.sample
 Hangman.new(secret_word).process_word_and_start_game
+
 
 
 
